@@ -1,5 +1,9 @@
 # es-cli
 
+[![build](https://github.com/izicoder/es-cli/actions/workflows/build.yml/badge.svg)](https://github.com/izicoder/es-cli/actions/workflows/build.yml)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![.NET](https://img.shields.io/badge/.NET-9.0-512bd4.svg)](https://dotnet.microsoft.com/download)
+
 Instant file search for Windows, straight from the command line — or from your AI agent.
 
 Two small tools over the [voidtools Everything SDK](https://www.voidtools.com/support/everything/sdk/):
