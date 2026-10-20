@@ -228,6 +228,16 @@ public class ResultFormatterTests
     }
 
     [Fact]
+    public void Empty_search_suggestions_stay_generic()
+    {
+        var text = ResultFormatter.Format(Request("some_user_file_2024.csv"), new SearchResults(0, []));
+
+        Assert.Contains("\"some_user_file_2024.csv\"", text, StringComparison.Ordinal); // echoes what was asked
+        Assert.Contains("instead of one exact file name", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("quarterly_report_final.csv", text, StringComparison.Ordinal); // no stray sample name
+    }
+
+    [Fact]
     public void Offset_past_the_end_is_explained()
     {
         var text = ResultFormatter.Format(Request("*.sln", offset: 500), new SearchResults(12, []));

@@ -55,7 +55,7 @@ internal static class ResultFormatter
         var text = new StringBuilder();
         text.AppendLine($"No files or folders match {description} - nothing was found for this query.");
         text.AppendLine("Try a different query:");
-        text.AppendLine("- a shorter fragment or wildcard: 'report*' instead of 'quarterly_report_final.csv'");
+        text.AppendLine("- a shorter fragment or wildcard: 'report*' instead of one exact file name");
         text.AppendLine("- drop narrowing terms: ext:, path:, dm: and size: are ANDed, so each one removes results");
         text.AppendLine("- search full paths: match_path=true, or wrap the fragment in path: like 'path:src\\api'");
         text.AppendLine("- broaden dates or sizes: 'dm:thisyear' instead of 'dm:today', 'size:>1mb' instead of 'size:>1gb'");
