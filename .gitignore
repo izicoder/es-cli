@@ -1,0 +1,16 @@
+# Build output
+bin/
+obj/
+publish/
+out/
+
+# Local tooling
+.vs/
+.idea/
+*.user
+*.suo
+.codegraph/
+
+# Third-party / machine-specific binaries are never committed
+Everything64.dll
+*.pdb
