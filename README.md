@@ -2,7 +2,7 @@
 
 [![build](https://github.com/izicoder/es-cli/actions/workflows/build.yml/badge.svg)](https://github.com/izicoder/es-cli/actions/workflows/build.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![.NET](https://img.shields.io/badge/.NET-9.0-512bd4.svg)](https://dotnet.microsoft.com/download)
+[![.NET](https://img.shields.io/badge/.NET-10.0-512bd4.svg)](https://dotnet.microsoft.com/download)
 
 Instant file search for Windows, straight from the command line — or from your AI agent.
 
@@ -18,7 +18,7 @@ Because queries run against Everything's in-memory index, lookups across million
 ## Requirements
 
 - Windows x64
-- [.NET 9 runtime](https://dotnet.microsoft.com/download) (or build self-contained, see below)
+- [.NET 10 runtime](https://dotnet.microsoft.com/download) (or build self-contained, see below)
 - [Everything](https://www.voidtools.com/) installed and **running in the background**
 - `Everything64.dll`, the SDK shipped with Everything, reachable in one of these ways:
   1. `EVERYTHING_SDK_PATH` set to the DLL or to the folder containing it
