@@ -14,4 +14,8 @@
     <ProjectReference Include="..\EsSdk\EsSdk.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="EsMcp.Tests" />
+  </ItemGroup>
+
 </Project>

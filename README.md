@@ -11,7 +11,7 @@ Two small tools over the [voidtools Everything SDK](https://www.voidtools.com/su
 | Binary | What it is |
 | --- | --- |
 | `es-cli` | A CLI that queries the Everything index: paths, sizes, dates, JSON output, paging. |
-| `es-mcp` | A [Model Context Protocol](https://modelcontextprotocol.io) server (stdio) that exposes the same search as a `search` tool for MCP clients. |
+| `es-mcp` | A [Model Context Protocol](https://modelcontextprotocol.io) server (stdio) that exposes the same search as a `search_files` tool for MCP clients. |
 
 Because queries run against Everything's in-memory index, lookups across millions of files return in milliseconds — no directory walking, no indexing of your own.
 
@@ -99,21 +99,21 @@ A stdio MCP server. Register it with any MCP client — for opencode, in `~/.con
 
 (For Claude Desktop / Cursor style clients, the same idea: `"command": "C:\\tools\\es-mcp\\es-mcp.exe"`, no arguments.)
 
-It exposes one tool:
+It exposes one tool, `search_files` (the pre-1.2 name `search` is still accepted on calls):
 
-### `search`
+### `search_files`
 
 | Parameter | Type | Default | Description |
 | --- | --- | --- | --- |
-| `query` | string | — | Everything query (`report ext:pdf`, `folder:src`, `dm:today`, …) |
-| `limit` | integer | 30 | 1-1000 results |
-| `offset` | integer | 0 | results to skip, for paging |
+| `query` | string | required | Everything query (`*.sln`, `report ext:pdf`, `path:src`, `dm:today`, …) |
+| `limit` | integer | 30 | 1-1000 rows; the reply's total count says whether more exist |
+| `offset` | integer | 0 | rows to skip, for paging (`offset += limit`) |
 | `regex` | boolean | false | query is a regular expression |
 | `case_sensitive` | boolean | false | match case |
 | `whole_word` | boolean | false | whole words only |
 | `match_path` | boolean | false | match the full path, not just the name |
-| `sort` | string | `path` | name, path, size, extension, date_modified, date_created, date_accessed (+ `_desc`), or a numeric SDK constant |
-| `filter` | string | — | extra clause appended to the query, e.g. `ext:cs path:src` |
+| `sort` | string | `path` | name, path, size, extension, date_modified, date_created, date_accessed (+ `_desc`), `none`, or a numeric SDK constant; `sort_by` is an alias |
+| `filter` | string | — | extra clause ANDed onto the query, e.g. `ext:cs path:src` |
 
 Results come back as a compact table:
 
@@ -122,7 +122,30 @@ Results come back as a compact table:
     1.2 MB  2026-02-03  C:\src\api\README.md
     4.4 KB  2026-02-03  C:\src\api\docs\README.md
    <dir>    2026-01-30  C:\src\api\docs
+... 17 more of 20 total (page with offset 3, raise limit, or narrow the query)
 ```
+
+A query that matches nothing says exactly that, and says what to change:
+
+```
+No files or folders match "quarterly_report_final.csv" - nothing was found for this query.
+Try a different query:
+- a shorter fragment or wildcard: 'report*' instead of 'quarterly_report_final.csv'
+- drop narrowing terms: ext:, path:, dm: and size: are ANDed, so each one removes results
+- search full paths: match_path=true, or wrap the fragment in path: like 'path:src\api'
+- broaden dates or sizes: 'dm:thisyear' instead of 'dm:today', 'size:>1mb' instead of 'size:>1gb'
+```
+
+### What the agent sees
+
+The server is written to be usable without prior knowledge and without reading this README:
+
+- **The tool name says what it does.** `search_files`, not `search`, so it wins over web-search tools in an agent's tool list.
+- **The description front-loads the decision**: use it *instead of* `dir`, `Get-ChildItem`, `where.exe` or `glob`, plus the query cheatsheet inline.
+- **`initialize` returns `instructions`** — a short cheatsheet (query syntax, reply format, paging, error meaning) that clients inject into the model's context.
+- **Annotations** mark it `readOnlyHint`, `idempotentHint`, `openWorldHint: false`, so agents know it is a safe, local, repeatable read.
+- **Schema carries the details**: 1-1000 limit range, `enum` of sort orders, `examples` for common calls, and every parameter documented.
+- **Empty and out-of-range results are self-correcting**: they name the failure and list concrete alternatives (broader fragment, drop `path:`/`ext:` terms, `match_path`, wider dates).
 
 Agent-side, this replaces `dir`, `Get-ChildItem` and `where.exe`: one call answers "where is this file", "what is the biggest thing on this drive", "list every `.sln` under `E:\work`".
 
@@ -131,8 +154,9 @@ Agent-side, this replaces `dir`, `Get-ChildItem` and `where.exe`: one call answe
 ```
 src/EsSdk/            shared Everything SDK interop (native bindings, DLL resolution, search API)
 src/EsCli/            command-line front end
-src/EsMcp/            MCP stdio server
-tests/EsCli.Tests/    xunit tests for argument parsing and formatting
+src/EsMcp/            MCP stdio server (tool catalog, argument parsing, result formatting)
+tests/EsCli.Tests/    xunit tests for CLI parsing and formatting
+tests/EsMcp.Tests/    xunit tests for the tool schema, argument handling and result messages
 ```
 
 `EsSdk` owns the only `DllImport` surface, so both front ends share one implementation and one error model.
