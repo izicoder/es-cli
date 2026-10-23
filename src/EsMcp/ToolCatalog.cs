@@ -39,6 +39,8 @@ internal static class ToolCatalog
           dm:today           modified today        size:>1gb          bigger than 1 GB
           "C:\work\api"      quoted literal path   regex:true         regular expression
         Space-separated terms are ANDed; use filter for the narrowing clause instead of one long query.
+        folder: matches folder names only - use path:Downloads to search inside a folder. Named sorts
+        are preferred (date_accessed can be slow); an unrecognised sort falls back to path.
 
         Reply format: "N total, showing M", then rows of "<size>  <date>  <full path>".
         If M is smaller than N, page with offset (+= limit) or tighten the query.
@@ -66,7 +68,7 @@ internal static class ToolCatalog
             "properties": {
               "query": {
                 "type": "string",
-                "description": "Everything query. Plain words match file names; ext:cs, path:src, dm:today, size:>1gb, wildcards and quoted paths all work. Examples: '*.sln', 'report ext:pdf', 'path:\"C:\\work\\api\"'."
+                "description": "Everything query. Plain words match file names; ext:cs, path:src, dm:today, size:>1gb, wildcards and quoted paths all work. folder: matches folder names only - use path: to search inside a folder. Examples: '*.sln', 'report ext:pdf', 'path:\"C:\\work\\api\"'."
               },
               "limit": {
                 "type": "integer",
@@ -114,7 +116,7 @@ internal static class ToolCatalog
                   "date_accessed", "date_accessed_desc",
                   "none"
                 ],
-                "description": "Result ordering. Use size_desc for 'largest files', date_modified_desc for 'most recently changed'. A numeric Everything sort constant (0-16) is also accepted; sort_by works as an alias."
+                "description": "Result ordering. Use size_desc for 'largest files', date_modified_desc for 'most recently changed'. Named sorts are preferred; date_accessed can take seconds on large indexes, and an unrecognised value falls back to path. A numeric Everything sort constant (0-16) is also accepted; sort_by works as an alias."
               },
               "filter": {
                 "type": "string",

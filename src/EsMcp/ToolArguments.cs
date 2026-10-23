@@ -33,9 +33,15 @@ internal static class ToolArguments
             return false;
         }
 
+        // A missing, zero or negative limit means "unset", not "return one row".
+        var requestedLimit = ReadNumber(arguments, "limit", "max_results", "max");
+        var limit = requestedLimit is > 0
+            ? (uint)Math.Clamp(requestedLimit.Value, 1d, MaxLimit)
+            : (uint)DefaultLimit;
+
         var options = new SearchOptions
         {
-            Limit = (uint)Math.Clamp(ReadNumber(arguments, "limit", "max_results", "max") ?? DefaultLimit, 1, MaxLimit),
+            Limit = limit,
             Offset = (uint)Math.Max(0, ReadNumber(arguments, "offset") ?? 0),
             Regex = ReadBool(arguments, "regex"),
             MatchCase = ReadBool(arguments, "case_sensitive"),

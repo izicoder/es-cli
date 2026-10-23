@@ -60,12 +60,24 @@ internal static class ResultFormatter
         text.AppendLine("- search full paths: match_path=true, or wrap the fragment in path: like 'path:src\\api'");
         text.AppendLine("- broaden dates or sizes: 'dm:thisyear' instead of 'dm:today', 'size:>1mb' instead of 'size:>1gb'");
 
+        // Everything does not report regex syntax errors: a bad pattern just matches nothing.
+        if (request.Options.Regex)
+            text.AppendLine("- regex:true is on: Everything silently returns nothing for an invalid pattern - check balanced ( ) and [ ], or retry without regex");
+
+        // `folder:` filters folder names, not the files inside them - a common expectation mismatch.
+        if (UsesFolderFilter(request))
+            text.AppendLine("- folder: matches folder names only, not the files inside: use path:Downloads (or path:\"C:\\work\\api\") to search within a folder");
+
         return text.ToString().TrimEnd();
     }
 
     private static string OffsetPastEnd(ToolRequest request, uint total) =>
         $"No rows at offset {request.Options.Offset}: {Quote(request.Query)} has {total} match{(total == 1 ? string.Empty : "es")} in total. " +
         $"Retry with a smaller offset (0 for the first page), raise limit, or narrow the query.";
+
+    private static bool UsesFolderFilter(ToolRequest request) =>
+        request.Query.Contains("folder:", StringComparison.OrdinalIgnoreCase)
+        || (request.Options.Filter?.Contains("folder:", StringComparison.OrdinalIgnoreCase) ?? false);
 
     private static string Quote(string value) => $"\"{value}\"";
 }

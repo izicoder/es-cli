@@ -82,7 +82,7 @@ Exit codes: `0` success, `1` bad usage, `2` Everything SDK error (usually: Every
 
 ## es-mcp
 
-A stdio MCP server. Register it with any MCP client — for opencode, in `~/.config/opencode/opencode.json`:
+A stdio MCP server. `dotnet publish` writes it to `out/es-mcp/es-mcp.exe`; copy it wherever you keep tools. Register it with any MCP client - for opencode, in `~/.config/opencode/opencode.json`:
 
 ```json
 {

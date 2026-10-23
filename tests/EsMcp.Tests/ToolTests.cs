@@ -125,7 +125,8 @@ public class ToolArgumentsTests
     }
 
     [Theory]
-    [InlineData("""{"query":"x","limit":0}""", 1u)]
+    [InlineData("""{"query":"x","limit":0}""", 30u)]
+    [InlineData("""{"query":"x","limit":-5}""", 30u)]
     [InlineData("""{"query":"x","limit":5000}""", 1000u)]
     [InlineData("""{"query":"x","limit":"12"}""", 12u)]
     [InlineData("""{"query":"x","max_results":7}""", 7u)]
@@ -235,6 +236,24 @@ public class ResultFormatterTests
         Assert.Contains("\"some_user_file_2024.csv\"", text, StringComparison.Ordinal); // echoes what was asked
         Assert.Contains("instead of one exact file name", text, StringComparison.Ordinal);
         Assert.DoesNotContain("quarterly_report_final.csv", text, StringComparison.Ordinal); // no stray sample name
+    }
+
+    [Fact]
+    public void Empty_regex_search_warns_that_bad_patterns_are_silent()
+    {
+        var request = new ToolRequest("re_chunk_(", new SearchOptions { Regex = true });
+        var text = ResultFormatter.Format(request, new SearchResults(0, []));
+
+        Assert.Contains("invalid pattern", text, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Empty_folder_search_explains_that_folder_filters_names_only()
+    {
+        var text = ResultFormatter.Format(Request("ext:iso", "folder:Downloads"), new SearchResults(0, []));
+
+        Assert.Contains("folder: matches folder names only", text, StringComparison.Ordinal);
+        Assert.Contains("use path:", text, StringComparison.Ordinal);
     }
 
     [Fact]
